@@ -14,7 +14,7 @@ import { AuthenticationService } from '../services/authentication.service';
   imports: [CommonModule, TripCardComponent],
   templateUrl: './trip-listing.component.html',
   styleUrl: './trip-listing.component.css',
-  providers: [TripDataService, AuthenticationService]
+  providers: [TripDataService]
 })
 
 export class TripListingComponent implements OnInit {
@@ -28,7 +28,7 @@ export class TripListingComponent implements OnInit {
       console.log('trip-listing constructor');
     }
 
-  private addTrip(): void {
+  public addTrip(): void {
     this.router.navigate(['add-trip']);
   }
   
