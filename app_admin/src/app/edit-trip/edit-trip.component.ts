@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from "@angular/forms";
 import { Router } from "@angular/router";
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
 import { TripDataService } from '../services/trip-data.service';
 import { Trip } from '../models/trip';
-import { AddTripComponent } from '../add-trip/add-trip.component';
+
 
 @Component({
   selector: 'app-edit-trip',
@@ -18,7 +18,6 @@ export class EditTripComponent implements OnInit {
   public editForm!: FormGroup;
   trip!: Trip;
   submitted = false;
-  isEdit = false;
   message: string = '';
 
   constructor(
@@ -49,30 +48,31 @@ export class EditTripComponent implements OnInit {
     perPerson: ['', Validators.required],
     image: ['', Validators.required],
     description: ['', Validators.required],
-  });
+  })
 
   // Retrieve the most recent trip data from the database
-  this.tripService.getTrip(this.editForm.value)
-    .then((data) => {
-      if (data) {
-        this.editForm.patchValue(data);
-      } else {
-        console.error('No trip found');
+  this.tripService.getTrip(tripCode)
+    .subscribe({
+      next: (value: any) => {
+        this.trip = value;
+        //  Populate our record into the form
+        this.editForm.patchValue(value[0]);
+        if(!value)
+        {
+          this.message = 'No Trip Retrieved!';
+        }
+        else {
+          this.message = 'Trip: ' + tripCode + ' retrieved!';
+        }
+        console.log(this.message);
+      },
+      error: (error: any) => {
+        console.log('Error: ' + error);
       }
-  })
-  .catch(error => {
-    console.error('Error retrieving trip data', error);
-  });
-}
-
-public onSubmit() {
-  this.submitted = true;
-  if (this.editForm.valid) {
-    this.tripService.updateTrip(this.editForm.value).then((data) => {
-      this.router.navigate(['']);
-    });
+    })
   }
-}
 
-  get f() { return this.editForm.controls; }
+  get f() {
+    return this.editForm.controls; 
+  }
 }

@@ -1,8 +1,9 @@
 import { Component, OnInit, Input } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { Trip } from '../models/trip';
 import { AuthenticationService } from '../services/authentication.service';
-import { CommonModule } from '@angular/common';
+
 
 @Component({
   selector: 'app-trip-card',
@@ -28,9 +29,15 @@ export class TripCardComponent implements OnInit {
   }
 
   public editTrip(trip: Trip) {
-    console.log('Inside TripListingComponent#editTrip');
     localStorage.removeItem('tripCode');
     localStorage.setItem('tripCode', trip.code);
     this.router.navigate(['edit-trip']);
   }
+
+  public deleteTrip(trip: Trip): void {
+    localStorage.removeItem("tripCode");
+    localStorage.setItem("tripCode", trip.code);
+    this.router.navigate(['delete-trip']);
+  }
+
 }

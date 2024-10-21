@@ -6,17 +6,24 @@ const path = require('path');
 const logger = require('morgan');
 const cookieParser = require('cookie-parser');
 const handlebars = require('hbs');
-const passport = require('passport'); // itialize the Passport authentication
+var users = require('./app_api/models/user');
 
 // Bring in the database
-require('./app_api/models/db');
+require('./app_api/models/db'); 
 
-require('./app_api/config/passport'); // itialize the Passport authentication
+// Wire in our authentication module
+var passport = require('passport');
+require('./app_api/config/passport'); 
 
 // Define routers
 var indexRouter = require('./app_server/routes/index');
 var usersRouter = require('./app_server/routes/users');
 var travelRouter = require('./app_server/routes/travel');
+var aboutRouter = require('./app_server/routes/about');
+var roomsRouter = require('./app_server/routes/rooms');
+var contactRouter = require('./app_server/routes/contact');
+var mealsRouter = require('./app_server/routes/meals');
+var newsRouter = require('./app_server/routes/news');
 var apiRouter = require('./app_api/routes/index');
 
 var app = express(); // Express app
@@ -36,7 +43,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(passport.initialize());
 
-// Allow CORS
+// Enable CORS
 app.use('/api', (req, res, next) => {
   res.header('Access-Control-Allow-Origin', 'https://localhost:4200');
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
@@ -48,7 +55,18 @@ app.use('/api', (req, res, next) => {
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/travel', travelRouter);
+app.use('/about', aboutRouter);
+app.use('/rooms', roomsRouter);
+app.use('/contact', contactRouter);
+app.use('/meals', mealsRouter);
+app.use('/news', newsRouter);
 app.use('/api', apiRouter);
+
+
+// catch 404 and forward to error handler
+app.use(function(req, res, next) {
+  next(createError(404));
+});
 
 // catch unauthorized error and create 401
 app.use((err, req, res, next) => {
@@ -57,11 +75,6 @@ app.use((err, req, res, next) => {
       .status(401)
       .json({"message": err.name + ": " + err.message});
   }
-});
-
-// catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  next(createError(404));
 });
 
 // error handler

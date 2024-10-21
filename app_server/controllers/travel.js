@@ -1,37 +1,54 @@
-const tripsEndpoint = 'http://localhost:3000/api/trips';
-const options = {
-    method: 'GET',
-    headers: {
-        'Accept': 'application/json'
-    }
+const request = require('request');
+const apiOptions = {
+    server: 'http://localhost:3000'
 }
 
-// Comment out two lines that used to read the data in from the seed file
-// var fs = require('fs');
-// var trips = JSON.parse(fs.readFileSync('./data/trips.json', 'utf8'));
+// Render travel list view
+const renderTravel = (req, res, responseBody) => {
+    let message = null;
+    let pageTitle = process.env.npm_package_description + ' - Travel';
 
-/* GET travel view */
-const travel = async function(req, res, next) {
-    // console.log('TRAVEL CONTROLLER BEGIN');
-    await fetch(tripsEndpoint, options)
-        .then(res => res.json())
-        .then(json => {
-            // console.log(json))
-            let message = null;
-            if(!(json instanceof Array)) {
-                message = 'API lookup error';
-                json = [];
-            } else {
-                if(!json.length) {
-                    message = 'No trips exist in our database!';
-                }
+    if (!(responseBody instanceof Array)) {
+        message = 'API lookup error';
+        responseBody = [];
+    } else {
+        if (!responseBody.length) {
+            message = "No trips exist in database!";
+        }
+    }
+
+    res.render('travel', {
+        title: pageTitle,
+        trips: responseBody,
+        message
+    });
+
+};
+
+
+
+// Get travel list
+const travel = (req, res) => {
+    const path = '/api/trips';
+    const requestOptions = {
+        url: `${apiOptions.server}${path}`,
+        method: 'GET',
+        json: {},
+    };
+    console.info('>> travelController.travel calling ' +
+        requestOptions.url);
+    
+    request(
+        requestOptions,
+        (err, {statusCode}, body) => {
+            if(err) {
+                console.error(err);
             }
-            res.render('travel', { title: 'Travlr Getaways', trips: json});
-        })
-        .catch(err => res.status(500).send(e.message));
-    // console.log('TRAVEL CONTROLLER AFTER RENDER');
+            renderTravel(req, res, body);
+        }
+    );
 };
 
 module.exports = {
     travel
-};
+}
